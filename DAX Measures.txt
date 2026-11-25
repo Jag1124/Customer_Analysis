@@ -1,0 +1,70 @@
+1. Total Sales
+```dax
+Total Sales =
+SUM(train[Sales])
+```
+
+## 2. Total Customers
+```dax
+Total Customers =
+DISTINCTCOUNT(train[Customer Name])
+```
+
+## 3. Average Sales per Customer
+```dax
+Average Sales per Customer =
+DIVIDE(
+    [Total Sales],
+    [Total Customers],
+    0
+)
+```
+
+## 4. Customer Rank
+```dax
+Customer Rank =
+RANKX(
+    ALL(train[Customer Name]),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+```
+
+## 5. Cumulative Sales
+```dax
+Cumulative Sales =
+VAR CurrentRank = [Customer Rank]
+RETURN
+CALCULATE(
+    [Total Sales],
+    FILTER(
+        ALL(train[Customer Name]),
+        [Customer Rank] <= CurrentRank
+    )
+)
+```
+
+## 6. Cumulative Sales %
+```dax
+Cumulative Sales % =
+DIVIDE(
+    [Cumulative Sales],
+    CALCULATE(
+        [Total Sales],
+        ALL(train[Customer Name])
+    )
+)
+```
+
+## 7. ABC Category
+```dax
+ABC Category =
+SWITCH(
+    TRUE(),
+    [Cumulative Sales %] <= 0.80, "A",
+    [Cumulative Sales %] <= 0.95, "B",
+    "C"
+)
+```
